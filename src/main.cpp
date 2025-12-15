@@ -121,47 +121,33 @@ int  fragSuccess;
 float leftVerticies[] = {
     -0.5f, -0.5f, 0.0f,//bottom left
     -0.5f, 0.5f, 0.0f,//top left
-    0.0f, 0.0f, 0.0f//center
+    0.0f, 0.0f, 0.0f,//center
+    0.5f, -0.5f, 0.0f,//bottom right
+    0.5f, 0.5f, 0.0f,//top right
+    0.75f, -0.25f, 0.0f,//bottom right hex
+    0.75f, 0.25f, 0.0f,//top right hex
+    0.0f, 0.75f, 0.0f,//top middle hex
+    0.0f, -0.75f, 0.0f,//bottom middle hex
+   -0.75f, -0.25f, 0.0f,//bottom left hex
+   -0.75f, 0.25f, 0.0f//top left hex
 };  
-float rightVerticies[] = {
-     0.5f, -0.5f, 0.0f,//bottom right
-     0.5f, 0.5f, 0.0f,//top right
-     0.0f, 0.0f, 0.0f//center
-};
-
-float hexVerticies[] = {
-     0.75f, -0.25f, 0.0f,//bottom right
-     0.75f, 0.25f, 0.0f,//top right
-     0.0f, 0.75f, 0.0f,//top middle
-     0.0f, -0.75f, 0.0f,//bottom middle
-    -0.75f, -0.25f, 0.0f,//bottom left 
-    -0.75f, 0.25f, 0.0f//top left 
-};
 
 unsigned int indicies[] = {
-   // 4,0,3, 
-    //4,1,2 
-    0,1,2
+    0,1,2, //left tri
+    2,3,4, //right tri
+    5,6,7, //top right hex
+    7,8,5, //finishing right hex
+    9,10,7, //top left hex
+    7,8,9
 };
 
-unsigned int hexIndicies[] = {
-    3,1,2,
-    3,1,0,
-//    2,3,4,
-//    4,5,2
-};
 
-unsigned int LeftVAO, LeftVBO, RightVAO, RightVBO, TriEBO, HexVAO, HexVBO, HexEBO;
+unsigned int LeftVAO, LeftVBO, TriEBO;
 glGenVertexArrays(1, &LeftVAO);
-glGenVertexArrays(1, &RightVAO);
-glGenVertexArrays(1, &HexVAO);
 
 glGenBuffers(1, &LeftVBO);
-glGenBuffers(1, &RightVBO);
-glGenBuffers(1, &HexVBO);
 
 glGenBuffers(1, &TriEBO);
-glGenBuffers(1, &HexEBO);
 
 glBindVertexArray(LeftVAO);
 
@@ -170,32 +156,6 @@ glBufferData(GL_ARRAY_BUFFER, sizeof(leftVerticies), leftVerticies, GL_STATIC_DR
 
 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, TriEBO);
 glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
-
-glVertexAttribPointer(0,3,GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-glEnableVertexAttribArray(0);
-
-glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-glBindVertexArray(RightVAO);
-
-glBindBuffer(GL_ARRAY_BUFFER, RightVBO);
-glBufferData(GL_ARRAY_BUFFER, sizeof(rightVerticies), rightVerticies, GL_STATIC_DRAW);
-
-glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, TriEBO);
-glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
-
-glVertexAttribPointer(0,3,GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-glEnableVertexAttribArray(0);
-
-glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-glBindVertexArray(HexVAO);
-
-glBindBuffer(GL_ARRAY_BUFFER, HexVBO);
-glBufferData(GL_ARRAY_BUFFER, sizeof(hexVerticies), hexVerticies, GL_STATIC_DRAW);
-
-glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, HexEBO);
-glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(hexIndicies), hexIndicies, GL_STATIC_DRAW);
 
 glVertexAttribPointer(0,3,GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 glEnableVertexAttribArray(0);
@@ -219,20 +179,16 @@ glBindVertexArray(0);
         int vertexColorLocation = glGetUniformLocation(ShaderProgram, "ourColor");
 
         glUseProgram(ShaderProgram);
-        glUniform4f(vertexColorLocation, 1.0f, 0.5f, 0.0f, 1.0f); 
-        glBindVertexArray(HexVAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        
+//        glUniform4f(vertexColorLocation, 1.0f, 0.5f, 0.0f, 1.0f); 
+       
         float timeValue = glfwGetTime();
         float greenValue = sin(timeValue) / 2.0f + 0.5f;
         glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
 
         glBindVertexArray(LeftVAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glUniform4f(vertexColorLocation, 0.0f, 0.0f, 0.0f, 1.0f); 
-        glBindVertexArray(RightVAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
+ //       glUniform4f(vertexColorLocation, 0.0f, 0.0f, 0.0f, 1.0f); 
 
         // render
         // ------
@@ -246,11 +202,6 @@ glBindVertexArray(0);
 //Deallocate
     glDeleteVertexArrays(1, &LeftVAO);
     glDeleteBuffers(1, &LeftVBO);
-    glDeleteVertexArrays(1, &RightVAO);
-    glDeleteBuffers(1, &RightVBO);
-    glDeleteVertexArrays(1, &HexVAO);
-    glDeleteBuffers(1, &HexVBO);
-
     glDeleteProgram(ShaderProgram);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
