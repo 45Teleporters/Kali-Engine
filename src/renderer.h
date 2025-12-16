@@ -1,0 +1,13 @@
+#pragma once
+
+#include "../include/glfw3.h"
+
+#define ASSERT(x) if (!(x)) __builtin_trap();
+
+#define GLCall(x) GLClearError();\
+   x;\
+   ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+//CAN WRAP WITH GLCALL() TO FIND ERROR
+
+void GLClearError();
+bool GLLogCall(const char* function, const char* file, int line);

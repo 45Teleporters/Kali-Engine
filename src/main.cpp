@@ -1,6 +1,6 @@
 #include "../include/glad.h"
 #include "../include/glfw3.h"
-
+#include "renderer.h"
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
@@ -14,6 +14,8 @@ void processInput(GLFWwindow *window);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+
+
 
 struct ShaderProgramSource
 {
@@ -115,6 +117,8 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
+
+    glfwSwapInterval(1); //Syncs with Refresh Rate
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // glad: load all OpenGL function pointers
@@ -142,10 +146,9 @@ unsigned int indicies[] = {
 };
 
     unsigned int LeftVAO, LeftVBO, TriEBO;
+
 glGenVertexArrays(1, &LeftVAO);
-
 glGenBuffers(1, &LeftVBO);
-
 glGenBuffers(1, &TriEBO);
 
 glBindVertexArray(LeftVAO);
@@ -163,9 +166,10 @@ glEnableVertexAttribArray(0);
 glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
 glEnableVertexAttribArray(1);
 
+glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 glBindVertexArray(0);
+glUseProgram(0);
 
 
        
@@ -179,13 +183,17 @@ glBindVertexArray(0);
         
         glClearColor(0.2f, 0.7f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+
  
         int vertexColorLocation = glGetUniformLocation(shader, "ourColor");
 
         glUseProgram(shader);
         glUniform4f(vertexColorLocation, 1.0f, 0.5f, 0.0f, 1.0f); 
         glBindVertexArray(LeftVAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, TriEBO);
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+
 
         // render
         // ------
