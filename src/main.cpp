@@ -2,6 +2,8 @@
 #include "../include/glfw3.h"
 #include "debug.h"
 #include "shaders.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "../include/stb_image.h"//for image loading
 
 #include <iostream>
 #include <math.h>
@@ -42,6 +44,7 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSwapInterval(1);//Sync Refresh Rate
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -57,15 +60,24 @@ int main()
 
     glUseProgram(shader);
     
-float leftVerticies[] = {
+/*float leftVerticies[] = {
     -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,//bottom left
     -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,//top left
     0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f//center
     };
-
-unsigned int indicies[] = {
-    0,1,2
+*/
+float squareVertices[] = {
+    // positions          // colors           // texture coords
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
 };
+unsigned int indicies[] = {
+    0,1,2,
+    0,2,3
+};
+
 
     unsigned int LeftVAO, LeftVBO, TriEBO;
 glGenVertexArrays(1, &LeftVAO);
@@ -77,22 +89,46 @@ glGenBuffers(1, &TriEBO);
 glBindVertexArray(LeftVAO);
 
 glBindBuffer(GL_ARRAY_BUFFER, LeftVBO);
-glBufferData(GL_ARRAY_BUFFER, sizeof(leftVerticies), leftVerticies, GL_STATIC_DRAW);
+glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), squareVertices, GL_STATIC_DRAW);
 
 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, TriEBO);
 glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
 
 // position attribute
-glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 glEnableVertexAttribArray(0);
 // color attribute
-glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));
 glEnableVertexAttribArray(1);
+//texture attribute
+glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6* sizeof(float)));
+glEnableVertexAttribArray(2);
 
 glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 glBindVertexArray(0);
 
+    int width,height,nrChannels;
+    unsigned char *data = stbi_load("../res/textures/container.jpg", &width,&height,&nrChannels, 0);
+
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glActiveTexture(GL_TEXTURE0);//make texture 0 the one we're mapping onto, basically variable
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	//Wrapping and filtering options on textures
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    if (data) {
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout<<"Texture failed to load" <<std::endl;
+    }
+    stbi_image_free(data);
 
        
     // render loop
@@ -106,10 +142,12 @@ glBindVertexArray(0);
         glClearColor(0.2f, 0.7f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
  
-        int vertexColorLocation = glGetUniformLocation(shader, "ourColor");
+        int vertexColorLocation = glGetUniformLocation(shader, "timeColor");
 
+        //std::cout<<cos(glfwGetTime()*3)<<std::endl;
         glUseProgram(shader);
-        glUniform4f(vertexColorLocation, 1.0f, 0.5f, 0.0f, 1.0f); 
+        glUniform1f(vertexColorLocation, (cos(glfwGetTime()*3))+1); 
+        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(LeftVAO);
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
 
@@ -130,7 +168,7 @@ glBindVertexArray(0);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
-    glfwTerminate();
+   glfwTerminate();
     return 0;
 }
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly

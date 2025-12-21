@@ -2,18 +2,30 @@
 #version 330 core
     layout (location = 0) in vec3 aPos;
     layout (location = 1) in vec3 aColor;
+    layout (location = 2) in vec2 aTexCoord;
+
     out vec3 ourColor;
+    out vec2 TexCoord;
+
+    uniform float timeColor;
     void main()
     {
        gl_Position = vec4(aPos, 1.0);
-       ourColor=aColor;
+       ourColor=aColor/timeColor;
+       TexCoord = aTexCoord;
     }
 #shader fragment
+
 #version 330 core 
-out vec4 FragColor;
-    in vec3 ourColor;
-    void main()
+   out vec4 FragColor;
+
+   in vec2 TexCoord;
+   in vec3 ourColor;
+
+   uniform sampler2D ourTexture;
+
+   void main()
     {
-       FragColor = vec4(ourColor, 1.0);
+       FragColor = texture(ourTexture, TexCoord) * vec4(ourColor,1.0);
     }
 

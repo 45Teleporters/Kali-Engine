@@ -10,6 +10,7 @@ target_sources(Kali
 		${CMAKE_SOURCE_DIR}/src/debug.h 
 		${CMAKE_SOURCE_DIR}/src/shaders.h
 		${CMAKE_SOURCE_DIR}/include/glad.h
+		${CMAKE_SOURCE_DIR}/include/stb_image.h
 		${CMAKE_SOURCE_DIR}/include/glfw3.h
 		${CMAKE_SOURCE_DIR}/include/glfw3native.h
 		${CMAKE_SOURCE_DIR}/include/khrplatform.h
