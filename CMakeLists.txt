@@ -7,6 +7,8 @@ add_executable(Kali)
 target_sources(Kali
 	PRIVATE
 		${CMAKE_SOURCE_DIR}/src/main.cpp
+		${CMAKE_SOURCE_DIR}/src/debug.h 
+		${CMAKE_SOURCE_DIR}/src/shaders.h
 		${CMAKE_SOURCE_DIR}/include/glad.h
 		${CMAKE_SOURCE_DIR}/include/glfw3.h
 		${CMAKE_SOURCE_DIR}/include/glfw3native.h
