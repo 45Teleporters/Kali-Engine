@@ -5,6 +5,27 @@
 #include <math.h>
 #include <stdio.h>
 
+#define ASSERT(x) if (!(x)) __builtin_trap();
+
+#define GLCall(x) GLClearError();\
+   x;\
+   ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+
+static void GLClearError()
+{
+    while (glGetError() != GL_NO_ERROR);
+}
+
+static bool GLLogCall(const char* function, const char* file, int line)
+{
+    while (GLenum error = glGetError())
+    {
+        std::cout<< "[OpenGL_Error] (" <<error << "): "<<function<<" " <<file<<":"<<line <<std::endl;
+        return false;
+    }
+    return true;
+}
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -175,7 +196,7 @@ glBindVertexArray(0);
         glUseProgram(ShaderProgram);
         glUniform4f(vertexColorLocation, 1.0f, 0.5f, 0.0f, 1.0f); 
         glBindVertexArray(LeftVAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
 
         // render
         // ------
