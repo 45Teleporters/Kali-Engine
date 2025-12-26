@@ -8,24 +8,26 @@
     out vec2 TexCoord;
 
     uniform float timeColor;
+
+    uniform mat4 transform;
     void main()
     {
-       gl_Position = vec4(aPos, 1.0);
+       gl_Position = transform * vec4(aPos, 1.0f);
        ourColor=aColor/timeColor;
-       TexCoord = aTexCoord;
+       TexCoord = vec2(aTexCoord.x, aTexCoord.y);
     }
 #shader fragment
-
 #version 330 core 
    out vec4 FragColor;
 
-   in vec2 TexCoord;
    in vec3 ourColor;
+   in vec2 TexCoord;
 
-   uniform sampler2D ourTexture;
-
+   uniform sampler2D texture1;
+   uniform sampler2D texture2;
+   
    void main()
     {
-       FragColor = texture(ourTexture, TexCoord) * vec4(ourColor,1.0);
+       FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.5);
     }
 

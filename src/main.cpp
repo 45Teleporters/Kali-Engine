@@ -4,6 +4,9 @@
 #include "shaders.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "../include/stb_image.h"//for image loading
+#include "../include/glm/glm.hpp"
+#include "../include/glm/gtc/matrix_transform.hpp"
+#include "../include/glm/gtc/type_ptr.hpp"
 
 #include <iostream>
 #include <math.h>
@@ -79,11 +82,9 @@ unsigned int indicies[] = {
 };
 
 
-    unsigned int LeftVAO, LeftVBO, TriEBO;
+unsigned int LeftVAO, LeftVBO, TriEBO;
 glGenVertexArrays(1, &LeftVAO);
-
 glGenBuffers(1, &LeftVBO);
-
 glGenBuffers(1, &TriEBO);
 
 glBindVertexArray(LeftVAO);
@@ -108,46 +109,84 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 glBindVertexArray(0);
 
-    int width,height,nrChannels;
-    unsigned char *data = stbi_load("../res/textures/container.jpg", &width,&height,&nrChannels, 0);
-
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glActiveTexture(GL_TEXTURE0);//make texture 0 the one we're mapping onto, basically variable
-    glBindTexture(GL_TEXTURE_2D, texture);
+    unsigned int texture1, texture2;
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	//Wrapping and filtering options on textures
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+    int width,height,nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+
+    unsigned char *data = stbi_load("../res/textures/container.jpg", &width,&height,&nrChannels, 0);
+
     if (data) {
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
     }
     else {
         std::cout<<"Texture failed to load" <<std::endl;
     }
     stbi_image_free(data);
 
-       
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	//Wrapping and filtering options on textures
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    data = stbi_load("../res/textures/awesomeface.png", &width,&height,&nrChannels, 0);
+
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout<<"Texture failed to load" <<std::endl;
+    } 
+    stbi_image_free(data);
+
+    glUniform1i(glGetUniformLocation(shader,"texture1"), 0);
+    glUniform1i(glGetUniformLocation(shader,"texture2"), 1);
+
+    unsigned int transformLoc =glGetUniformLocation(shader, "transform");
+
+
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
         // input
-        // -----
+        //
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+    trans = glm::rotate(trans, pow((float)glfwGetTime(), 2.5f), glm::vec3(0.0, 0.0, 1.0));
+   
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+
         processInput(window);
         
         glClearColor(0.2f, 0.7f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
  
         int vertexColorLocation = glGetUniformLocation(shader, "timeColor");
+        glUseProgram(shader);
 
         //std::cout<<cos(glfwGetTime()*3)<<std::endl;
-        glUseProgram(shader);
         glUniform1f(vertexColorLocation, (cos(glfwGetTime()*3))+1); 
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+
+
         glBindVertexArray(LeftVAO);
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
 
@@ -163,6 +202,7 @@ glBindVertexArray(0);
 //Deallocate
     glDeleteVertexArrays(1, &LeftVAO);
     glDeleteBuffers(1, &LeftVBO);
+    glDeleteBuffers(1, &TriEBO);
 
     glDeleteProgram(shader);
 
