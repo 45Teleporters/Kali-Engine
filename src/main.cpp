@@ -12,8 +12,6 @@
 #include <math.h>
 #include <stdio.h>
 
- 
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -137,10 +135,26 @@ int main()
     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
+
+glm::vec3 cubePositions[] = {
+    glm::vec3( 0.0f,  0.0f,  0.0f), 
+    glm::vec3( 2.0f,  5.0f, -15.0f), 
+    glm::vec3(-1.5f, -2.2f, -2.5f),  
+    glm::vec3(-3.8f, -2.0f, -12.3f),  
+    glm::vec3( 2.4f, -0.4f, -3.5f),  
+    glm::vec3(-1.7f,  3.0f, -7.5f),  
+    glm::vec3( 1.3f, -2.0f, -2.5f),  
+    glm::vec3( 1.5f,  2.0f, -2.5f), 
+    glm::vec3( 1.5f,  0.2f, -1.5f), 
+    glm::vec3(-1.3f,  1.0f, -1.5f)  
+};
+
 //Send vertex data
-unsigned int LeftVAO, LeftVBO, TriEBO;
+unsigned int LeftVAO, LeftVBO, TriEBO, lightVAO, lightVBO;
 glGenVertexArrays(1, &LeftVAO);
+glGenVertexArrays(1, &lightVAO);
 glGenBuffers(1, &LeftVBO);
+glGenBuffers(1, &lightVBO);
 glGenBuffers(1, &TriEBO);
 
 glBindVertexArray(LeftVAO);
@@ -158,9 +172,16 @@ glEnableVertexAttribArray(0);
 glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3* sizeof(float)));
 glEnableVertexAttribArray(1);
 
-glBindBuffer(GL_ARRAY_BUFFER, 0);
+glBindVertexArray(lightVAO);
 
-glBindVertexArray(0);
+glBindBuffer(GL_ARRAY_BUFFER, LeftVBO);
+
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+glEnableVertexAttribArray(0);
+glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3* sizeof(float)));
+glEnableVertexAttribArray(1);
+
+glEnableVertexAttribArray(0);
 
 //Import textures
     unsigned int texture1, texture2;
@@ -213,6 +234,9 @@ glBindVertexArray(0);
    
 //    view = glm::translate(view, glm::vec3(0.0f,0.0f,-3.0f));
 
+    glm::vec3 colorLight (1.0f, 1.0f, 1.0f);
+    glm::vec3 colorObject (1.0f, 0.5f, 0.31f);
+
 
 
     int modelLoc = glGetUniformLocation(shader, "model");
@@ -221,23 +245,12 @@ glBindVertexArray(0);
     
     glEnable(GL_DEPTH_TEST);
 
-glm::vec3 cubePositions[] = {
-    glm::vec3( 0.0f,  0.0f,  0.0f), 
-    glm::vec3( 2.0f,  5.0f, -15.0f), 
-    glm::vec3(-1.5f, -2.2f, -2.5f),  
-    glm::vec3(-3.8f, -2.0f, -12.3f),  
-    glm::vec3( 2.4f, -0.4f, -3.5f),  
-    glm::vec3(-1.7f,  3.0f, -7.5f),  
-    glm::vec3( 1.3f, -2.0f, -2.5f),  
-    glm::vec3( 1.5f,  2.0f, -2.5f), 
-    glm::vec3( 1.5f,  0.2f, -1.5f), 
-    glm::vec3(-1.3f,  1.0f, -1.5f)  
-};
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
         // input
+        glUseProgram(shader);
 
     float currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
@@ -256,19 +269,18 @@ glm::vec3 cubePositions[] = {
       
 
 
-        
         glClearColor(0.2f, 0.7f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
-        glUseProgram(shader);
-
         //std::cout<<cos(glfwGetTime()*3)<<std::endl;
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
 
-
+    glUniform3fv(glGetUniformLocation(shader, "objectColor"), 1,  &colorObject[0]);
+    glUniform3fv(glGetUniformLocation(shader, "lightColor"), 1,  glm::value_ptr(colorLight));
+    
         glBindVertexArray(LeftVAO);
 for(unsigned int i = 0; i < 10; i++)
 {
@@ -300,6 +312,7 @@ for(unsigned int i = 0; i < 10; i++)
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
    glfwTerminate();
+
     return 0;
 }
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -368,3 +381,5 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     if (fov > 45.0f)
         fov = 45.0f;
 }
+
+// 
