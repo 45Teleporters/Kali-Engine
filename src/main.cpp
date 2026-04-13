@@ -76,6 +76,7 @@ int main()
 // Read Shader
     ShaderProgramSource source = ParseShader("../res/shaders/basic.shader");
     unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
+    unsigned int shader2 = CreateShader(source.VertexSource, source.FragmentSource2);
 
     glUseProgram(shader);
     
@@ -236,7 +237,7 @@ glEnableVertexAttribArray(0);
 
     glm::vec3 colorLight (1.0f, 1.0f, 1.0f);
     glm::vec3 colorObject (1.0f, 0.5f, 0.31f);
-
+    glm::vec3 lightPos(-1.2f, -1.0f, -2.0f);
 
 
     int modelLoc = glGetUniformLocation(shader, "model");
@@ -292,6 +293,15 @@ for(unsigned int i = 0; i < 10; i++)
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, &model[0][0]);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }
+glUseProgram(shader2);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    glm::mat4 modelLight = glm::mat4(1.0f);
+    model=glm::translate(model, lightPos);
+    glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, &modelLight[0][0]);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
         // render
         // ------

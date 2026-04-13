@@ -9,7 +9,9 @@ struct ShaderProgramSource
 {
     std::string VertexSource;
     std::string FragmentSource;
+    std::string FragmentSource2;
 };
+
 
 static ShaderProgramSource ParseShader(const std::string& filepath) //cherno file reader https://www.youtube.com/watch?v=2pv0Fbo-7ms&list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2&index=8
 {
@@ -17,11 +19,11 @@ static ShaderProgramSource ParseShader(const std::string& filepath) //cherno fil
 
     enum class ShaderType
     {
-        NONE = -1, VERTEX =0, FRAGMENT = 1
+        NONE = -1, VERTEX =0, FRAGMENT = 1, FRAGMENT2 =2
     };
 
     std::string line;
-    std::stringstream ss[2];
+    std::stringstream ss[3];
     ShaderType type = ShaderType::NONE;
     while (getline(stream, line))
     {
@@ -31,17 +33,22 @@ static ShaderProgramSource ParseShader(const std::string& filepath) //cherno fil
                 {
                     type= ShaderType::VERTEX;
                 }
-                else if (line.find("fragment") != std::string::npos)
+                else if (line.find("fragment1") != std::string::npos)
                 {
                     type= ShaderType::FRAGMENT;
                 }
+                else if (line.find("fragment2") != std::string::npos)
+                {
+                    type= ShaderType::FRAGMENT2;
+                }
+
         }
         else
         {
             ss[(int)type] << line << '\n';
         }
     }
-    return { ss[0].str(), ss[1].str() };
+    return { ss[0].str(), ss[1].str(), ss[2].str() };
 }
 static unsigned int CompileShader(unsigned int type, const std::string& source) //function for making and compiling vertex shaders
 {
