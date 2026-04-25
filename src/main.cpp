@@ -80,19 +80,6 @@ int main()
 
     glUseProgram(shader);
     
-/*float leftVerticies[] = {
-    -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,//bottom left
-    -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,//top left
-    0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f//center
-    };
-*/
-/*float squareVertices[] = {
-    // positions          // colors           // texture coords
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
-};*/
     float cubeVerticies[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -237,7 +224,7 @@ glEnableVertexAttribArray(0);
 
     glm::vec3 colorLight (1.0f, 1.0f, 1.0f);
     glm::vec3 colorObject (1.0f, 0.5f, 0.31f);
-    glm::vec3 lightPos(-1.2f, -1.0f, -2.0f);
+    glm::vec3 lightPos(1.2f, 1.0f, 0.0f);
 
 
     int modelLoc = glGetUniformLocation(shader, "model");
@@ -290,18 +277,21 @@ for(unsigned int i = 0; i < 10; i++)
     float angle = 20.0f * i; 
     model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
     model = glm::rotate(model, (float)glfwGetTime(),  glm::vec3(0.5f, 1.0f, 0.0f));
-    glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, &model[0][0]);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }
-glUseProgram(shader2);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-    glm::mat4 modelLight = glm::mat4(1.0f);
-    model=glm::translate(model, lightPos);
-    glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, &modelLight[0][0]);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
 
+glUseProgram(shader2);
+
+
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3( -5.0f,  0.0f,  0.0f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+ 
+    glUniformMatrix4fv(glGetUniformLocation(shader2, "view"), 1, GL_FALSE, &view[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(shader2, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniform4fv(glGetUniformLocation(shader2, "model"), 1,&model[0][0]);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // render
         // ------
