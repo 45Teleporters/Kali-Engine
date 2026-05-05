@@ -239,7 +239,7 @@ glEnableVertexAttribArray(0);
     int viewLoc = glGetUniformLocation(shader, "view");
     
     glEnable(GL_DEPTH_TEST);
-
+// NO LONGER NECESARRY Need to depracate normals in vbo, in order to find normal take 3 points, find 2 vectors, and find the dot product. EX: given vec3 P (1,2,3) vec3 Q (2,3,4) and vec3 R (3,4,5) vector pq is vec3 Q- vec3 P. vector pr is vec3 R- vec3 P. multiply the products for normal. 
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -276,7 +276,7 @@ glEnableVertexAttribArray(0);
     glUniform3fv(glGetUniformLocation(shader, "objectColor"), 1,  &colorObject[0]);
     glUniform3fv(glGetUniformLocation(shader, "lightColor"), 1,  glm::value_ptr(colorLight));
     glUniform3fv(glGetUniformLocation(shader, "lightPos"), 1,  glm::value_ptr(lightPos));
-    glUniform1f(glGetUniformLocation(shader, "ambientStrength"), GLfloat( 0.5f));
+    glUniform1f(glGetUniformLocation(shader, "ambientStrength"), GLfloat( 0.4f));
 
         glBindVertexArray(LeftVAO);
 for(unsigned int i = 0; i < 10; i++)
@@ -285,7 +285,7 @@ for(unsigned int i = 0; i < 10; i++)
     model = glm::translate(model, cubePositions[i]);
     float angle = 20.0f * i; 
     model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-//    model = glm::rotate(model, (float)glfwGetTime(),  glm::vec3(0.5f, 1.0f, 0.0f));
+    model = glm::rotate(model, (float)glfwGetTime(),  glm::vec3(0.5f, 1.0f, 0.0f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }
