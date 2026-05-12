@@ -261,7 +261,7 @@ glEnableVertexAttribArray(0);
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-      
+     
 
 
         glClearColor(0.2f, 0.7f, 0.3f, 1.0f);
@@ -277,6 +277,9 @@ glEnableVertexAttribArray(0);
     glUniform3fv(glGetUniformLocation(shader, "lightColor"), 1,  glm::value_ptr(colorLight));
     glUniform3fv(glGetUniformLocation(shader, "lightPos"), 1,  glm::value_ptr(lightPos));
     glUniform1f(glGetUniformLocation(shader, "ambientStrength"), GLfloat( 0.4f));
+    glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1,  glm::value_ptr(cameraPos));
+    glUniform1f(glGetUniformLocation(shader, "specularStrength"), GLfloat( 0.5f));
+    glUniform1f(glGetUniformLocation(shader, "shinyness"), GLfloat( 16.f));
 
         glBindVertexArray(LeftVAO);
 for(unsigned int i = 0; i < 10; i++)
@@ -286,6 +289,8 @@ for(unsigned int i = 0; i < 10; i++)
     float angle = 20.0f * i; 
     model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
     model = glm::rotate(model, (float)glfwGetTime(),  glm::vec3(0.5f, 1.0f, 0.0f));
+    glm::mat3 normalMatrix = inverse(model);
+    glUniformMatrix3fv(glGetUniformLocation(shader, "normalMatrix"), 1, GL_TRUE, glm::value_ptr(normalMatrix));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }

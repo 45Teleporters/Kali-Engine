@@ -11,17 +11,19 @@
     uniform mat4 model;
     uniform mat4 view; 
     uniform mat4 projection; 
+    uniform mat3 normalMatrix;
 
     void main()
     {
     gl_Position= projection * view * model * vec4(aPos,1.0);
     FragPos= vec3(model *vec4(aPos, 1.0));
         TexCoord= vec2(aTexCoord.x, aTexCoord.y);
-        Normal= vec3(model *vec4(aNormal,1.0));
+        Normal= normalMatrix * aNormal;
     }
 #shader fragment1
 #version 330 core 
    out vec4 FragColor;
+   
 
    in vec2 TexCoord;
    in vec3 Normal;
@@ -34,13 +36,25 @@
    uniform vec3 objectColor;
    uniform vec3 lightColor;
    uniform float ambientStrength;
+   uniform vec3 cameraPos;
+   uniform float specularStrength;
+   uniform float shinyness;
+   
+
     
     vec3 norm= normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff= max(dot(norm, lightDir), 0.0);
     vec3 diffuse= diff*lightColor;
     vec3 ambient = lightColor * ambientStrength;
-    vec3 result = (ambient +diffuse) * objectColor ;
+
+    vec3 viewDir=normalize(cameraPos-FragPos);
+    vec3 reflectDir = reflect (-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shinyness);
+    vec3 specular = specularStrength *spec *lightColor;
+
+    vec3 result = (ambient +diffuse +specular) * objectColor ;
+
     void main()
     {
        FragColor = mix(mix(texture(texture1, TexCoord), texture(texture2, TexCoord) , 0.5), vec4(result, 1.0), 0.5);
