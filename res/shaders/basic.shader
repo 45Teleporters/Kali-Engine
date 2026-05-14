@@ -23,7 +23,14 @@
 #shader fragment1
 #version 330 core 
    out vec4 FragColor;
-   
+    struct Material { 
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shinyness;
+    };
+
+    uniform Material material;
 
    in vec2 TexCoord;
    in vec3 Normal;
@@ -39,24 +46,23 @@
    uniform vec3 cameraPos;
    uniform float specularStrength;
    uniform float shinyness;
-   
-
-    
-    vec3 norm= normalize(Normal);
-    vec3 lightDir = normalize(lightPos - FragPos);
-    float diff= max(dot(norm, lightDir), 0.0);
-    vec3 diffuse= diff*lightColor;
-    vec3 ambient = lightColor * ambientStrength;
-
-    vec3 viewDir=normalize(cameraPos-FragPos);
-    vec3 reflectDir = reflect (-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shinyness);
-    vec3 specular = specularStrength *spec *lightColor;
-
-    vec3 result = (ambient +diffuse +specular) * objectColor ;
 
     void main()
     {
+    vec3 ambient = lightColor * material.ambient;
+
+    vec3 norm= normalize(Normal);
+    vec3 lightDir = normalize(lightPos - FragPos);
+    float diff= max(dot(norm, lightDir), 0.0);
+    vec3 diffuse= lightColor * (diff *material.diffuse);
+
+    vec3 viewDir=normalize(cameraPos-FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shinyness);
+    vec3 specular = lightColor* (material.specular *spec);
+
+    vec3 result = ambient +diffuse +specular;
+
        FragColor = mix(mix(texture(texture1, TexCoord), texture(texture2, TexCoord) , 0.5), vec4(result, 1.0), 0.5);
 }
 
