@@ -230,15 +230,23 @@ glEnableVertexAttribArray(0);
 //    view = glm::translate(view, glm::vec3(0.0f,0.0f,-3.0f));
 
     glm::vec3 colorLight (1.0f, 1.0f, 1.0f);
-    glm::vec3 colorObject (1.0f, 0.5f, 0.31f);
     glm::vec3 lightPos(-5.0f, 0.0f, -1.0f);
 
+    glm::vec3 ambientMaterial(1.0f, 0.5f, 0.31f);
+    glm::vec3 diffuseMaterial( 1.0f, 0.5f, 0.31f);
+    glm::vec3 specularMaterial(0.5f, 0.5f, 0.5f);
+    float shinynessMaterial = 32.0f;
 
     int modelLoc = glGetUniformLocation(shader, "model");
     int projectionLoc = glGetUniformLocation(shader, "projection");
     int viewLoc = glGetUniformLocation(shader, "view");
     
     glEnable(GL_DEPTH_TEST);
+
+glUniform3fv(glGetUniformLocation(shader, "material.ambient"), 1, glm::value_ptr(ambientMaterial));
+glUniform3fv(glGetUniformLocation(shader, "material.diffuse"),1, glm::value_ptr(diffuseMaterial));
+glUniform3fv(glGetUniformLocation(shader, "material.specular"),1, glm::value_ptr(specularMaterial));
+glUniform1f(glGetUniformLocation(shader, "material.shinyness"), shinynessMaterial);
 // NO LONGER NECESARRY Need to depracate normals in vbo, in order to find normal take 3 points, find 2 vectors, and find the dot product. EX: given vec3 P (1,2,3) vec3 Q (2,3,4) and vec3 R (3,4,5) vector pq is vec3 Q- vec3 P. vector pr is vec3 R- vec3 P. multiply the products for normal. 
     // render loop
     // -----------
@@ -273,13 +281,9 @@ glEnableVertexAttribArray(0);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
 
-    glUniform3fv(glGetUniformLocation(shader, "objectColor"), 1,  &colorObject[0]);
     glUniform3fv(glGetUniformLocation(shader, "lightColor"), 1,  glm::value_ptr(colorLight));
     glUniform3fv(glGetUniformLocation(shader, "lightPos"), 1,  glm::value_ptr(lightPos));
-    glUniform1f(glGetUniformLocation(shader, "ambientStrength"), GLfloat( 0.4f));
     glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1,  glm::value_ptr(cameraPos));
-    glUniform1f(glGetUniformLocation(shader, "specularStrength"), GLfloat( 0.5f));
-    glUniform1f(glGetUniformLocation(shader, "shinyness"), GLfloat( 16.f));
 
         glBindVertexArray(LeftVAO);
 for(unsigned int i = 0; i < 10; i++)

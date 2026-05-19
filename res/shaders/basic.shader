@@ -40,12 +40,8 @@
    uniform sampler2D texture2;
 
    uniform vec3 lightPos;
-   uniform vec3 objectColor;
    uniform vec3 lightColor;
-   uniform float ambientStrength;
    uniform vec3 cameraPos;
-   uniform float specularStrength;
-   uniform float shinyness;
 
     void main()
     {
