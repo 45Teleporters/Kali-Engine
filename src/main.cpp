@@ -235,6 +235,10 @@ glEnableVertexAttribArray(0);
     glm::vec3 ambientMaterial(1.0f, 0.5f, 0.31f);
     glm::vec3 diffuseMaterial( 1.0f, 0.5f, 0.31f);
     glm::vec3 specularMaterial(0.5f, 0.5f, 0.5f);
+    glm::vec3 ambientStrength(0.2f, 0.2f, 0.2f); 
+    glm::vec3 diffuseStrength(0.8f, 0.8f, 0.8f);
+    glm::vec3 specularStrength(1.0f, 1.0f, 1.0f);
+
     float shinynessMaterial = 32.0f;
 
     int modelLoc = glGetUniformLocation(shader, "model");
@@ -247,6 +251,11 @@ glUniform3fv(glGetUniformLocation(shader, "material.ambient"), 1, glm::value_ptr
 glUniform3fv(glGetUniformLocation(shader, "material.diffuse"),1, glm::value_ptr(diffuseMaterial));
 glUniform3fv(glGetUniformLocation(shader, "material.specular"),1, glm::value_ptr(specularMaterial));
 glUniform1f(glGetUniformLocation(shader, "material.shinyness"), shinynessMaterial);
+
+
+glUniform3fv(glGetUniformLocation(shader, "light.ambient"),1, glm::value_ptr(ambientStrength));
+glUniform3fv(glGetUniformLocation(shader, "light.diffuse"),1, glm::value_ptr(diffuseStrength));
+glUniform3fv(glGetUniformLocation(shader, "light.specular"),1, glm::value_ptr(specularStrength));
 // NO LONGER NECESARRY Need to depracate normals in vbo, in order to find normal take 3 points, find 2 vectors, and find the dot product. EX: given vec3 P (1,2,3) vec3 Q (2,3,4) and vec3 R (3,4,5) vector pq is vec3 Q- vec3 P. vector pr is vec3 R- vec3 P. multiply the products for normal. 
     // render loop
     // -----------
@@ -282,7 +291,7 @@ glUniform1f(glGetUniformLocation(shader, "material.shinyness"), shinynessMateria
         glBindTexture(GL_TEXTURE_2D, texture2);
 
     glUniform3fv(glGetUniformLocation(shader, "lightColor"), 1,  glm::value_ptr(colorLight));
-    glUniform3fv(glGetUniformLocation(shader, "lightPos"), 1,  glm::value_ptr(lightPos));
+    glUniform3fv(glGetUniformLocation(shader, "light.lightPos"), 1,  glm::value_ptr(lightPos));
     glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1,  glm::value_ptr(cameraPos));
 
         glBindVertexArray(LeftVAO);

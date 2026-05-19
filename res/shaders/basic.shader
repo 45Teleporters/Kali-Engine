@@ -29,8 +29,17 @@
     vec3 specular;
     float shinyness;
     };
+    
+    struct Light {
+    vec3 lightPos;
+    
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    };
 
     uniform Material material;
+    uniform Light light;
 
    in vec2 TexCoord;
    in vec3 Normal;
@@ -39,23 +48,22 @@
    uniform sampler2D texture1;
    uniform sampler2D texture2;
 
-   uniform vec3 lightPos;
    uniform vec3 lightColor;
    uniform vec3 cameraPos;
 
     void main()
     {
-    vec3 ambient = lightColor * material.ambient;
+    vec3 ambient = light.ambient * lightColor * material.ambient;
 
     vec3 norm= normalize(Normal);
-    vec3 lightDir = normalize(lightPos - FragPos);
+    vec3 lightDir = normalize(light.lightPos - FragPos);
     float diff= max(dot(norm, lightDir), 0.0);
-    vec3 diffuse= lightColor * (diff *material.diffuse);
+    vec3 diffuse= light.diffuse *lightColor * (diff *material.diffuse);
 
     vec3 viewDir=normalize(cameraPos-FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shinyness);
-    vec3 specular = lightColor* (material.specular *spec);
+    vec3 specular = light.diffuse * lightColor* (material.specular *spec);
 
     vec3 result = ambient +diffuse +specular;
 
