@@ -235,9 +235,13 @@ glEnableVertexAttribArray(0);
     glm::vec3 ambientMaterial(1.0f, 0.5f, 0.31f);
     glm::vec3 diffuseMaterial( 1.0f, 0.5f, 0.31f);
     glm::vec3 specularMaterial(0.5f, 0.5f, 0.5f);
+
     glm::vec3 ambientStrength(0.2f, 0.2f, 0.2f); 
     glm::vec3 diffuseStrength(0.8f, 0.8f, 0.8f);
     glm::vec3 specularStrength(1.0f, 1.0f, 1.0f);
+
+//    glm::vec3 ambientColor(1.0f, 1.0f, 1.0f);
+//    glm::vec3 diffuseColor(1.0f, 1.0f, 1.0f);
 
     float shinynessMaterial = 32.0f;
 
@@ -271,6 +275,10 @@ glUniform3fv(glGetUniformLocation(shader, "light.specular"),1, glm::value_ptr(sp
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 model = glm::mat4(1.0f);
 
+    colorLight.x=sin(glfwGetTime() *2.0f);
+    colorLight.y=sin(glfwGetTime() *0.7f);
+    colorLight.z=sin(glfwGetTime() *1.3f);
+    
     processInput(window);
 
     view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
@@ -293,6 +301,9 @@ glUniform3fv(glGetUniformLocation(shader, "light.specular"),1, glm::value_ptr(sp
     glUniform3fv(glGetUniformLocation(shader, "lightColor"), 1,  glm::value_ptr(colorLight));
     glUniform3fv(glGetUniformLocation(shader, "light.lightPos"), 1,  glm::value_ptr(lightPos));
     glUniform3fv(glGetUniformLocation(shader, "cameraPos"), 1,  glm::value_ptr(cameraPos));
+
+//    glUniform3fv(glGetUniformLocation(shader, "light.ambient"),1, glm::value_ptr(ambientColor));
+//    glUniform3fv(glGetUniformLocation(shader, "light.diffuse"),1, glm::value_ptr(diffuseColor));
 
         glBindVertexArray(LeftVAO);
 for(unsigned int i = 0; i < 10; i++)
